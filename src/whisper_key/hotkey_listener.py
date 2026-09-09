@@ -6,7 +6,7 @@
 
 import logging
 
-from .platform import hotkeys
+from .platform import hotkeys, IS_LINUX
 from .state_manager import StateManager
 
 class HotkeyListener:
@@ -236,7 +236,10 @@ class HotkeyListener:
             return
 
         try:
-            hotkeys.register(self.hotkey_bindings)
+            if IS_LINUX:
+                hotkeys.register(self.hotkey_bindings, recording_only=self.cancel_combination)
+            else:
+                hotkeys.register(self.hotkey_bindings)
             hotkeys.start()
             self.is_listening = True
 

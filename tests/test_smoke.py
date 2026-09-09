@@ -1302,7 +1302,7 @@ class AutostartTests(unittest.TestCase):
     def test_is_supported_matches_platform(self):
         import sys
         from whisper_key import autostart
-        self.assertEqual(autostart.is_supported(), sys.platform in ('win32', 'darwin'))
+        self.assertEqual(autostart.is_supported(), sys.platform in ('win32', 'darwin', 'linux'))
 
     def test_launch_command_nonempty(self):
         from whisper_key import autostart

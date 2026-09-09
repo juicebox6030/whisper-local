@@ -110,10 +110,12 @@ def _section_packages() -> int:
     failures = 0
 
     for pkg in REQUIRED_PACKAGES:
+        if sys.platform == 'linux' and pkg == 'pystray':
+            pkg = 'whisper_key.platform.linux.tray'
         try:
             importlib.import_module(pkg)
             Check(pkg).ok().print()
-        except ImportError as e:
+        except Exception as e:
             Check(pkg).fail(str(e)).print()
             failures += 1
 
@@ -125,6 +127,19 @@ def _section_packages() -> int:
             except ImportError as e:
                 Check(pkg).fail(str(e)).print()
                 failures += 1
+
+    if sys.platform == 'linux':
+        try:
+            import ctypes
+            ctypes.CDLL('libc++.so.1')
+            from ten_vad import TenVad
+            vad = TenVad()
+            del vad
+            Check('Voice activity native runtime').ok().print()
+        except Exception as e:
+            Check('Voice activity native runtime').fail(
+                f'{e}; Fedora: sudo dnf install libcxx libcxxabi').print()
+            failures += 1
 
     print()
     return failures
@@ -265,6 +280,22 @@ def _section_model() -> int:
 def _section_hotkeys() -> int:
     print(f"{BOLD}Hotkeys{RESET}")
     failures = 0
+
+    if sys.platform == 'linux':
+        try:
+            from .platform.linux import bridge
+            bridge.check()
+            Check('GNOME desktop bridge').ok('hotkeys, input, panel and foreground app').print()
+        except Exception as e:
+            Check('GNOME desktop bridge').fail(str(e)).print()
+            failures += 1
+        import shutil
+        for command in ('wl-copy', 'wl-paste'):
+            if shutil.which(command):
+                Check(command).ok().print()
+            else:
+                Check(command).fail('Install wl-clipboard').print()
+                failures += 1
 
     try:
         from .platform import hotkeys  # noqa

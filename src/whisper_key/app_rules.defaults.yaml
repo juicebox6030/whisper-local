@@ -37,16 +37,16 @@ rules:
   # Code editors: never auto-send, never paste — copy only so the user
   # decides where it lands; identifier/path bias. Keep it verbatim: no forced
   # capitalization or trailing period (code isn't prose).
-  - match: ["code.exe", "cursor.exe", "windsurf.exe", "rider64.exe", "pycharm64.exe", "idea64.exe"]
+  - match: ["code.exe", "cursor.exe", "windsurf.exe", "rider64.exe", "pycharm64.exe", "idea64.exe", "Visual Studio Code", "Cursor", "Windsurf", "PyCharm", "IntelliJ"]
     auto_paste: false
     initial_prompt: "Programming context. Identifiers, snake_case, camelCase, file paths, regex."
     capitalize_first: false
     ensure_punctuation: false
 
   # Password managers: never deliver dictation into a password field
-  - match: ["1password.exe", "1password-7.exe", "lastpass.exe", "bitwarden.exe", "keepass.exe", "keepassxc.exe"]
+  - match: ["1password", "lastpass", "bitwarden", "keepass"]
     suppress: true
 
   # Terminals: copy only — pasting into a terminal can run commands
-  - match: ["windowsterminal.exe", "wt.exe", "conhost.exe", "powershell.exe", "cmd.exe", "alacritty.exe", "wezterm-gui.exe"]
+  - match: ["windowsterminal.exe", "wt.exe", "conhost.exe", "powershell.exe", "cmd.exe", "alacritty", "wezterm", "ptyxis", "gnome-terminal", "kgx", "konsole", "kitty", "xterm"]
     auto_paste: false

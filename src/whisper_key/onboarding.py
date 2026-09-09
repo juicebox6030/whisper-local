@@ -8,6 +8,8 @@
 import subprocess
 import sys
 import webbrowser
+import shutil
+import importlib.util
 
 from .platform import app
 from .terminal_ui import BOLD_GREEN, BOLD_RED, RESET, prompt_choice
@@ -22,7 +24,7 @@ _PY_TAG = f"cp{sys.version_info.major}{sys.version_info.minor}"
 NVIDIA_PACKAGES = [
     "nvidia-cuda-runtime-cu12",
     "nvidia-cublas-cu12",
-    "nvidia-cudnn-cu12",
+    "nvidia-cudnn-cu12==9.*" if sys.platform == 'linux' else "nvidia-cudnn-cu12",
 ]
 
 _ROCM_72_BASE = "https://repo.radeon.com/rocm/windows/rocm-rel-7.2"
@@ -239,7 +241,10 @@ def _prompt_rdna1(gpu_name, config_manager):
 
 
 def _pip_install(packages):
-    cmd = [sys.executable, "-m", "pip", "install", "--no-cache-dir"] + packages
+    if sys.platform == 'linux' and importlib.util.find_spec('pip') is None and shutil.which('uv'):
+        cmd = ['uv', 'pip', 'install', '--python', sys.executable, *packages]
+    else:
+        cmd = [sys.executable, "-m", "pip", "install", "--no-cache-dir"] + packages
     print("   Downloading runtime libraries... (this may take a few minutes)")
     result = subprocess.run(cmd)
     return result.returncode == 0
@@ -255,5 +260,4 @@ def _pip_install_wheel(url):
 
 def get_ct2_wheel_url(gpu_class):
     return CT2_WHEEL_URLS.get(gpu_class)
-
 

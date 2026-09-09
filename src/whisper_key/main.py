@@ -24,6 +24,9 @@ import sys
 import threading
 
 from .platform import app, permissions, console
+from .platform import IS_LINUX
+if IS_LINUX:
+    app.setup()
 from .config_manager import ConfigManager
 from .audio_recorder import AudioRecorder
 from .hotkey_listener import HotkeyListener
@@ -256,7 +259,7 @@ def run_gpu_onboarding(config_manager, whisper_config):
     # handle it. Without this, a first-ever windowless launch on a GPU machine
     # could hang on the prompt. (sys.stdout is reassigned to devnull earlier under
     # pythonw, so sys.stdin is the reliable no-console signal here.)
-    if sys.stdin is None:
+    if sys.stdin is None or (IS_LINUX and not sys.stdin.isatty()):
         logging.getLogger(__name__).info("Skipping GPU onboarding prompt (no console); deferring to next launch")
         return whisper_config
     gpu_class, gpu_name, ct2_works = detect_hardware(whisper_config['device'])
@@ -266,7 +269,10 @@ def run_gpu_onboarding(config_manager, whisper_config):
 
 def _handle_gpu_failure(error, whisper_config, vad_manager, model_registry, log_transcriptions, config_manager):
     from .onboarding import handle_gpu_failure
-    handle_gpu_failure(error, config_manager)
+    if IS_LINUX and (sys.stdin is None or not sys.stdin.isatty()):
+        logging.getLogger(__name__).error('GPU failed without an interactive terminal; using CPU: %s', error)
+    else:
+        handle_gpu_failure(error, config_manager)
     whisper_config['device'] = 'cpu'
     whisper_config['compute_type'] = 'int8'
     return setup_whisper_engine(whisper_config, vad_manager, model_registry, log_transcriptions)
@@ -305,6 +311,9 @@ def shutdown_app(hotkey_listener: HotkeyListener, state_manager: StateManager, l
         state_manager.shutdown()
 
 def main():
+    if IS_LINUX:
+        from .platform.linux.gpu import prepare_runtime
+        prepare_runtime()
     # Under pythonw.exe (windowless launch — autostart shortcuts, the pyapp .exe
     # before it allocates a console, etc.) there is no console, so sys.stdout and
     # sys.stderr are None and every print() in the app would raise AttributeError.

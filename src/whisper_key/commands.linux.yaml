@@ -1,0 +1,48 @@
+# GNOME equivalents of the upstream voice commands. Copied only on first use;
+# existing commands.yaml files are never overwritten by a platform upgrade.
+commands:
+  - trigger: "undo"
+    hotkey: "ctrl+z"
+  - trigger: "select all"
+    hotkey: "ctrl+a"
+  - trigger: "paste that"
+    hotkey: "ctrl+v"
+  - trigger: "snap left"
+    hotkey: "win+left"
+  - trigger: "snap right"
+    hotkey: "win+right"
+  - trigger: "maximize"
+    hotkey: "win+up"
+  - trigger: "minimize"
+    hotkey: "win+h"
+  - trigger: "show desktop"
+    hotkey: "show_desktop" # GNOME has no default Show Desktop accelerator.
+  - trigger: "my email"
+    type: "user@example.com"
+  - trigger: "my address"
+    type: "123 Main Street, City, State 12345"
+  - trigger: "open notepad"
+    run: 'gnome-text-editor'
+  - trigger: "open calculator"
+    run: 'gnome-calculator'
+  - trigger: "open browser"
+    run: 'xdg-open https://www.google.com'
+  - trigger: "open downloads"
+    run: 'xdg-open "$(xdg-user-dir DOWNLOAD)"'
+  - trigger: "new terminal"
+    run: 'ptyxis --new-window'
+  - trigger: "screenshot"
+    hotkey: "print"
+  - trigger: "lock screen"
+    run: 'loginctl lock-session'
+  - trigger: "make this concise"
+    rephrase: "Rewrite this text to be more concise while preserving meaning"
+  - trigger: "make this professional"
+    rephrase: "Rewrite this text in a polished, professional tone"
+  - trigger: "fix grammar"
+    rephrase: "Fix grammar, spelling, and punctuation in this text. Do not change wording otherwise"
+  - trigger: "save and format"
+    hotkey: "ctrl+s"
+    then:
+      - delay: 0.2
+      - hotkey: "shift+alt+f"

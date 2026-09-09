@@ -17,7 +17,7 @@ import pyperclip
 from ruamel.yaml import YAML
 
 from .utils import resolve_asset_path, get_user_app_data_path
-from .platform import keyboard
+from .platform import keyboard, IS_LINUX
 
 RISKY_PATTERNS = re.compile(
     r'\b(rm\s+-r|del\s+/[sq]|format\s+\w:|shutdown|reg\s+delete|sudo|takeown|del\s+/f)\b'
@@ -38,7 +38,7 @@ class VoiceCommandManager:
             self.logger.info("Voice commands disabled by configuration")
             return
 
-        defaults_path = resolve_asset_path("commands.defaults.yaml")
+        defaults_path = resolve_asset_path("commands.linux.yaml" if IS_LINUX else "commands.defaults.yaml")
         user_path = os.path.join(get_user_app_data_path(), "commands.yaml")
 
         if not os.path.exists(user_path):

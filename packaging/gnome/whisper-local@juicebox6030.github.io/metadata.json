@@ -1,0 +1,8 @@
+{
+  "uuid": "whisper-local@juicebox6030.github.io",
+  "name": "Whisper Local",
+  "description": "Local dictation: hotkeys, keyboard delivery, app rules, status menu and recording overlay.",
+  "shell-version": ["49"],
+  "version": 1,
+  "url": "https://github.com/juicebox6030/whisper-local"
+}
