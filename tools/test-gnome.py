@@ -35,6 +35,10 @@ def main():
             return true;
         case 'test-displays':
             return {DISPLAY: GLib.getenv('DISPLAY'), XAUTHORITY: GLib.getenv('XAUTHORITY')};
+        case 'test-keycode':
+            this._keyboard.notify_key(GLib.get_monotonic_time(), r.code - 8,
+                r.pressed ? Clutter.KeyState.PRESSED : Clutter.KeyState.RELEASED);
+            return true;
         case 'test-key':
             this._keyboard.notify_keyval(GLib.get_monotonic_time(), keyval(r.key),
                 r.pressed ? Clutter.KeyState.PRESSED : Clutter.KeyState.RELEASED);
@@ -132,6 +136,20 @@ def main():
                     events = bridge.call('poll')
                     assert [e['pressed'] for e in events] == [True, False], events
                     print('ACCELERATOR PRESS/RELEASE passed', flush=True)
+                    # The physical Copilot key observed on this laptop sends
+                    # Super+Shift and XKB keycode 201 (new Assistant keysym).
+                    bridge.call('register', bindings=['super+shift+0xc9'], generation=7)
+                    for key in ('super', 'shift'):
+                        bridge.call('test-key', key=key, pressed=True)
+                    bridge.call('test-keycode', code=201, pressed=True)
+                    time.sleep(1)
+                    assert [e['pressed'] for e in bridge.call('poll')] == [True]
+                    bridge.call('test-keycode', code=201, pressed=False)
+                    for key in ('shift', 'super'):
+                        bridge.call('test-key', key=key, pressed=False)
+                    time.sleep(0.1)
+                    assert [e['pressed'] for e in bridge.call('poll')] == [False]
+                    print('COPILOT HARDWARE SHORTCUT HOLD/RELEASE passed', flush=True)
                     bridge.call('register', bindings=['esc'], recordingOnly=[0], generation=6)
                     bridge.call('state', state='recording')
                     bridge.call('test-key', key='esc', pressed=True)

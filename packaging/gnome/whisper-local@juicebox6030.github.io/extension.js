@@ -206,7 +206,13 @@ export default class WhisperLocal extends Extension {
             }
             if (keys.length > 1 || (!keys.length && !mask))
                 throw new Error(`Invalid hotkey: ${text}`);
-            if (keys.length) keyval(keys[0]);
+            // Mutter also accepts a hexadecimal hardware keycode. This lets
+            // newer physical keys work without a matching Clutter keysym name.
+            // Keep this shortcut-only: synthesized input still requires keyval.
+            if (keys.length && !/^0x[0-9a-f]{2}$/.test(keys[0]))
+                keyval(keys[0]);
+            if (keys.length && /^0x/.test(keys[0]) && parseInt(keys[0], 16) < 8)
+                throw new Error(`Invalid hardware keycode: ${keys[0]}`);
             const prefix = Object.entries(MOD_NAMES).filter(([bit]) => mask & Number(bit))
                 .map(([, name]) => name).join('');
             return {index, mask, key: keys[0], accelerator: prefix + (keys[0] ?? ''),

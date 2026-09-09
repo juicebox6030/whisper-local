@@ -1,6 +1,6 @@
 # Linux / GNOME port
 
-This fork adds a Linux backend while retaining the shared transcription and
+This experimental port adds a Linux backend while retaining the shared transcription and
 automation pipeline and the existing Windows/macOS implementations. The initial
 target is **Fedora 43, GNOME Shell 49, Wayland**. Other desktops and Shell versions
 are not supported by this backend yet. This is a development port, not a claim
@@ -40,6 +40,10 @@ server can use utility/API commands, but cannot provide desktop dictation.
 
 - Hold **Ctrl+Super**, speak, then release to dictate. Toggle mode is also
   configurable. Key-containing shortcuts support both press and release.
+- Hardware shortcuts can use a two-digit hexadecimal XKB keycode. For example,
+  `hotkey.recording_hotkey: "super+shift+0xc9"` binds the Copilot key on keyboards
+  that emit Super+Shift with keycode 201. Confirm your keyboard's events first;
+  this is not a universal Copilot mapping and does not change the system keymap.
 - **Escape** cancels while recording, including with the overlay disabled;
   ordinary application Escape is not grabbed while idle.
 - **Ctrl+Shift+Super** invokes rephrase; **Alt+Super** invokes voice commands;
@@ -97,11 +101,23 @@ uv venv --python 3.13
 uv pip install -e '.[loopback,noise]' pytest
 .venv/bin/pytest -q
 node --check packaging/gnome/whisper-local@juicebox6030.github.io/extension.js
+node --test tests/test_gnome_extension.cjs
 dbus-run-session -- .venv/bin/python tools/test-gnome.py
 ```
 
 `--desktop-only` runs the compositor and settings/history checks without full
 audio application startup; it must not be reported as a full-app success.
+
+GitHub Actions runs cross-platform smoke tests and a separate Ubuntu Linux
+regression job with the installed Python package and mocked extension logic.
+The Node tests do not run GNOME or inject input. The Fedora/GNOME 49 integration
+command above remains a separate check, not part of the Ubuntu CI job.
+
+The extension currently uses `whisper-local@juicebox6030.github.io`. Its final
+upstream identifier/distribution is a maintainer decision; keep the directory,
+metadata, installer, and Python bridge identifiers in sync if changing it.
+The Python wheel alone does not install the companion extension: use this source
+checkout and the installation steps above.
 
 The compositor integration test runs a disposable, headless GNOME session with
 its own D-Bus, settings, extension copy, and GTK Wayland text target. Test-only
