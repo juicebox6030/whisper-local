@@ -16,6 +16,8 @@ Everyone whose pull requests have been merged. Add yourself here in your first P
 
 <!-- Add your name here in alphabetical order when contributing. -->
 
+- [@juicebox6030](https://github.com/juicebox6030) — Fedora/GNOME Wayland port and Copilot-key integration
+
 ## Upstream open-source projects we build on
 
 Whisper Local stands on the shoulders of a lot of excellent work:

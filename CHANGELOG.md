@@ -2,6 +2,20 @@
 
 History inherited from upstream [`whisper-key-local`](https://github.com/PinW/whisper-key-local). Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Experimental **Fedora 43 / GNOME 49 / Wayland** desktop backend, with a
+  companion GNOME Shell extension for push-to-talk shortcuts, input delivery,
+  foreground-window information, panel menus, and recording overlays.
+- Linux XDG configuration/autostart, desktop diagnostics, installation guide,
+  and Linux voice-command defaults. Existing Windows/macOS backends remain.
+- Hardware-keycode shortcuts for keys such as Copilot; the binding is opt-in
+  and keyboard-specific. No system keyboard remapping is performed.
+- Linux regression CI and an isolated GNOME compositor integration harness.
+  See [Linux setup and verification limits](docs/linux.md): other desktops,
+  AMD automatic GPU setup, and full optional-backend parity are not claimed.
+
 ## [0.18.3]
 
 ### Added

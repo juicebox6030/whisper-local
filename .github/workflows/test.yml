@@ -2,8 +2,12 @@ name: Tests
 
 on:
   push:
-    branches: [master]
+    branches: [master, linux-port]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   smoke:
@@ -29,3 +33,22 @@ jobs:
       - if: runner.os == 'macOS'
         run: pip install pyobjc-framework-Quartz pyobjc-framework-Cocoa
       - run: python -m unittest tests.test_smoke -v
+
+  linux-regression:
+    # No live desktop, microphone, or model downloads in this job. The real
+    # GNOME 49 compositor checks remain a separate documented Fedora test.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: sudo apt-get update && sudo apt-get install -y libportaudio2 libc++1 libc++abi1 python3-gi
+      - run: python -m pip install . pytest
+      - run: python -m pytest -q
+      - run: node --check packaging/gnome/whisper-local@juicebox6030.github.io/extension.js
+      - run: node --test tests/test_gnome_extension.cjs

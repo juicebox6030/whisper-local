@@ -22,7 +22,12 @@ pip install -e .
 python -m unittest tests.test_smoke
 ```
 
-All smoke tests should pass (40 at time of writing). CI runs the same suite on every push.
+All smoke tests should pass. CI runs this suite on Windows, macOS, and Ubuntu
+for pull requests and pushes to `master` / `linux-port`. The Linux regression
+job also installs the package and runs `python -m pytest -q` plus
+`node --test tests/test_gnome_extension.cjs`. These are headless checks, not
+proof of desktop dictation. See [Linux verification](docs/linux.md#verification)
+for the separate Fedora/GNOME compositor and physical desktop tests.
 
 To run the app from source while developing:
 
@@ -67,7 +72,9 @@ Use the [Feature request template](https://github.com/drajb/whisper-local/issues
 - **Section markers in long files.** When a file has multiple concerns (e.g. `state_manager.py`), use comment dividers between them so readers can scan.
 - **Explain WHY, not WHAT.** `# increment counter` is noise. `# we count attempts not failures so retries-after-disconnect still expose a stuck loop` is signal.
 - **Break old formats freely.** We don't maintain backward compatibility for configs across major versions — feel free to clean up.
-- **Tests live in `tests/test_smoke.py`.** Add new test classes alongside the existing ones.
+- **Tests live in `tests/`.** Keep lightweight cross-platform tests in
+  `tests/test_smoke.py`; Linux contracts live in `tests/test_linux.py`, and
+  compositor-independent extension logic in `tests/test_gnome_extension.cjs`.
 
 Thank you again — see you in the PR queue!
 

@@ -22,7 +22,7 @@ Fixes #
 ## Testing
 
 - [ ] Smoke tests pass locally (`python -m unittest tests.test_smoke`)
-- [ ] Tested manually on the platforms I have access to (Windows / macOS)
+- [ ] Tested manually on the platforms I have access to (list OS/desktop versions; do not imply untested platforms passed)
 - [ ] Added new tests for new behaviour (if applicable)
 
 ## Privacy

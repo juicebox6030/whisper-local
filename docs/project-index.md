@@ -1,6 +1,11 @@
-Local faster-whisper speech-to-text app with global hotkeys for Windows 10+ and macOS
+Local faster-whisper speech-to-text app with global hotkeys for Windows 10+,
+macOS, and experimental Fedora/GNOME 49 Wayland support.
 
-Open-source fork of [PinW/whisper-key-local](https://github.com/PinW/whisper-key-local), maintained as `drajb/whisper-local` by Rohit Burani. Internal Python module name remains `whisper_key`; the config directory remains `%APPDATA%\whisperkey` (`~/.whisperkey` on macOS).
+Open-source fork of [PinW/whisper-key-local](https://github.com/PinW/whisper-key-local), maintained as `drajb/whisper-local` by Rohit Burani. Internal Python module name remains `whisper_key`; the config directory remains `%APPDATA%\whisperkey` (`~/.whisperkey` on macOS; `$XDG_CONFIG_HOME/whisperkey`, default `~/.config/whisperkey`, on Linux).
+
+Linux desktop operations use `platform/linux/` and the companion extension in
+`packaging/gnome/`. See [Linux setup and verification](linux.md); the platform
+support does not imply compatibility with other Linux desktops.
 
 - Start here: `state_manager.py` coordinates all components workflow
 
@@ -80,7 +85,7 @@ whisper-local/
 │       │   ├── sounds/                # Audio feedback sounds
 │       ├── platform/                  # Platform abstraction layer
 │       │   ├── __init__.py            # Platform detection & import routing
-│       │   └── {macos,windows}/       # Platform-specific implementations
+│       │   └── {macos,windows,linux}/ # Platform-specific implementations
 │       │       ├── assets/            # Platform-specific assets
 │       │       ├── app.py             # Thread requirements, getch()
 │       │       ├── hotkeys.py         # Hotkey detection

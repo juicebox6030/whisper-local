@@ -6,9 +6,10 @@
 
 **Press a hotkey. Speak. Your words appear at the cursor.**
 
-> **Linux development fork:** Fedora/GNOME 49 Wayland support is being added on
-> the `linux-port` branch. See [Linux installation, behavior, and verification
-> limits](docs/linux.md). Windows/macOS documentation below is retained from upstream.
+> **Experimental Linux support:** Fedora 43 / GNOME 49 / Wayland requires a
+> companion Shell extension. See [Linux installation, behavior, and verification
+> limits](docs/linux.md). The Windows/macOS instructions below remain unchanged.
+
 No cloud. No subscription. No telemetry. Powered by [OpenAI Whisper](https://github.com/openai/whisper).
 
 [![Tests](https://github.com/drajb/whisper-local/actions/workflows/test.yml/badge.svg)](https://github.com/drajb/whisper-local/actions/workflows/test.yml)
