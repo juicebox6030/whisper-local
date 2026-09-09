@@ -108,10 +108,10 @@ dbus-run-session -- .venv/bin/python tools/test-gnome.py
 `--desktop-only` runs the compositor and settings/history checks without full
 audio application startup; it must not be reported as a full-app success.
 
-GitHub Actions runs cross-platform smoke tests and a separate Ubuntu Linux
-regression job with the installed Python package and mocked extension logic.
-The Node tests do not run GNOME or inject input. The Fedora/GNOME 49 integration
-command above remains a separate check, not part of the Ubuntu CI job.
+The local Python tests check Linux contracts and shared behavior; the Node
+tests exercise mocked extension logic without running GNOME or injecting input.
+The Fedora/GNOME 49 integration command above remains a separate check.
+Passing these Linux checks does not establish Windows/macOS desktop parity.
 
 The extension currently uses `whisper-local@juicebox6030.github.io`. Its final
 upstream identifier/distribution is a maintainer decision; keep the directory,

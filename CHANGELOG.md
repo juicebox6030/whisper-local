@@ -12,7 +12,7 @@ History inherited from upstream [`whisper-key-local`](https://github.com/PinW/wh
   and Linux voice-command defaults. Existing Windows/macOS backends remain.
 - Hardware-keycode shortcuts for keys such as Copilot; the binding is opt-in
   and keyboard-specific. No system keyboard remapping is performed.
-- Linux regression CI and an isolated GNOME compositor integration harness.
+- Local Linux regression tests and an isolated GNOME compositor integration harness.
   See [Linux setup and verification limits](docs/linux.md): other desktops,
   AMD automatic GPU setup, and full optional-backend parity are not claimed.
 

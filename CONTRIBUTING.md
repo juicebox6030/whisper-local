@@ -22,9 +22,8 @@ pip install -e .
 python -m unittest tests.test_smoke
 ```
 
-All smoke tests should pass. CI runs this suite on Windows, macOS, and Ubuntu
-for pull requests and pushes to `master` / `linux-port`. The Linux regression
-job also installs the package and runs `python -m pytest -q` plus
+All smoke tests should pass. For local Linux regression testing, install the
+package and pytest, then run `python -m pytest -q` and
 `node --test tests/test_gnome_extension.cjs`. These are headless checks, not
 proof of desktop dictation. See [Linux verification](docs/linux.md#verification)
 for the separate Fedora/GNOME compositor and physical desktop tests.
