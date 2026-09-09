@@ -24,6 +24,7 @@ import sys
 import threading
 
 from .platform import app, permissions, console
+from .platform import IS_LINUX
 from .config_manager import ConfigManager
 from .audio_recorder import AudioRecorder
 from .hotkey_listener import HotkeyListener
@@ -256,7 +257,7 @@ def run_gpu_onboarding(config_manager, whisper_config):
     # handle it. Without this, a first-ever windowless launch on a GPU machine
     # could hang on the prompt. (sys.stdout is reassigned to devnull earlier under
     # pythonw, so sys.stdin is the reliable no-console signal here.)
-    if sys.stdin is None:
+    if sys.stdin is None or (IS_LINUX and not sys.stdin.isatty()):
         logging.getLogger(__name__).info("Skipping GPU onboarding prompt (no console); deferring to next launch")
         return whisper_config
     gpu_class, gpu_name, ct2_works = detect_hardware(whisper_config['device'])
@@ -266,7 +267,10 @@ def run_gpu_onboarding(config_manager, whisper_config):
 
 def _handle_gpu_failure(error, whisper_config, vad_manager, model_registry, log_transcriptions, config_manager):
     from .onboarding import handle_gpu_failure
-    handle_gpu_failure(error, config_manager)
+    if IS_LINUX and (sys.stdin is None or not sys.stdin.isatty()):
+        logging.getLogger(__name__).error('GPU failed without an interactive terminal; using CPU: %s', error)
+    else:
+        handle_gpu_failure(error, config_manager)
     whisper_config['device'] = 'cpu'
     whisper_config['compute_type'] = 'int8'
     return setup_whisper_engine(whisper_config, vad_manager, model_registry, log_transcriptions)
@@ -305,6 +309,9 @@ def shutdown_app(hotkey_listener: HotkeyListener, state_manager: StateManager, l
         state_manager.shutdown()
 
 def main():
+    if IS_LINUX:
+        from .platform.linux.gpu import prepare_runtime
+        prepare_runtime()
     # Under pythonw.exe (windowless launch — autostart shortcuts, the pyapp .exe
     # before it allocates a console, etc.) there is no console, so sys.stdout and
     # sys.stderr are None and every print() in the app would raise AttributeError.
@@ -337,6 +344,9 @@ def main():
     parser.add_argument('--import-settings', metavar='PATH', help='Restore user settings + commands from an export directory')
     parser.add_argument('--stats', action='store_true', help='Show transcription stats and exit')
     parser.add_argument('--setup', action='store_true', help='Run interactive setup wizard')
+    if IS_LINUX:
+        parser.add_argument('--install-gnome-extension', action='store_true',
+                            help='Install or update the bundled GNOME desktop integration')
     parser.add_argument('--export-transcripts', metavar='PATH', help='Export transcription history to .txt / .md / .csv')
     parser.add_argument('--import-vocab', metavar='PATH', help='Scan a folder for terms and merge into whisper.hotwords')
     parser.add_argument('--add-word', metavar='WORD', help='Add a word to your hotwords dictionary')
@@ -365,6 +375,10 @@ def main():
                         help='Transcribe N seconds of system audio / loopback (default 10). '
                              'Needs the loopback extra: pip install whisper-local[loopback]. EXPERIMENTAL.')
     args = parser.parse_args()
+
+    if IS_LINUX and args.install_gnome_extension:
+        from .platform.linux.permissions import install_extension
+        sys.exit(install_extension())
 
     # '' means the flag was given with no path → export_model picks the default.
     if args.uninstall:

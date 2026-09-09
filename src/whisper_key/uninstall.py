@@ -96,6 +96,15 @@ def _confirm(prompt: str) -> bool:
 def run_uninstall() -> int:
     config_dir = Path(get_user_app_data_path())
     models = _our_cached_models()
+    extension_dir = None
+    if sys.platform == 'linux':
+        from .platform.linux.bridge import UUID
+        data_home = Path(os.environ.get('XDG_DATA_HOME', ''))
+        if not data_home.is_absolute():
+            data_home = Path.home() / '.local' / 'share'
+        candidate = data_home / 'gnome-shell' / 'extensions' / UUID
+        if candidate.is_dir():
+            extension_dir = candidate
 
     try:
         from . import autostart
@@ -116,6 +125,8 @@ def run_uninstall() -> int:
     else:
         print("  Settings and data   (none found)")
     print(f"  Start on login      {'enabled - will be removed' if autostart_on else 'not enabled'}")
+    if extension_dir:
+        print(f"  GNOME integration   {extension_dir} (asked about separately)")
 
     total_models = sum(size for _, size in models)
     if models:
@@ -127,10 +138,12 @@ def run_uninstall() -> int:
         print("  Downloaded models   (none found)")
     print()
 
-    if not config_dir.is_dir() and not models and not autostart_on:
+    if not config_dir.is_dir() and not models and not autostart_on and not extension_dir:
         print("Nothing to remove - this machine is already clean.")
         return 0
 
+    if extension_dir:
+        print('Continue below to remove app data; GNOME extension removal is a separate choice.')
     if not _confirm("Remove settings, data and the autostart entry? [y/N] "):
         print("Cancelled. Nothing was removed.")
         return 1
@@ -145,6 +158,15 @@ def run_uninstall() -> int:
 
     if config_dir.is_dir() and _remove(config_dir):
         print(f"   removed {config_dir}")
+
+    # The companion is a separate desktop component; removal is opt-in too.
+    if extension_dir and _confirm('Also remove the GNOME extension? [y/N] '):
+        import subprocess
+        try:
+            subprocess.run(['gnome-extensions', 'uninstall', UUID], check=True)
+            print('   removed GNOME integration; log out/in to unload it completely')
+        except (OSError, subprocess.CalledProcessError) as error:
+            print(f'   ! could not remove GNOME integration: {error}')
 
     # Models are deliberately a second, explicit decision: they are the large
     # and slow-to-replace part, and a user may be reinstalling rather than

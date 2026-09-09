@@ -46,7 +46,11 @@ from .audit_log import record as audit_record
 from .terminal_title import TerminalTitle
 from .transcript_log import record_transcript
 from .platform import foreground
-from .level_overlay import LevelOverlay
+from .platform import IS_LINUX
+if IS_LINUX:
+    from .platform.linux.overlay import LevelOverlay
+else:
+    from .level_overlay import LevelOverlay
 from .fallback_window import FallbackWindow
 
 class StateManager:
@@ -693,6 +697,13 @@ class StateManager:
     # OptionalComponent-wrapped: a disabled tray or a non-TTY terminal is a
     # silent no-op rather than a branch at each call site.
     def _update_ui_state(self, state: str):
+        if IS_LINUX:
+            # Escape cancellation must work even when tray and overlay are off.
+            from .platform.linux.bridge import call
+            try:
+                call('state', state=state)
+            except Exception:
+                self.logger.exception('Failed to update GNOME recording controls')
         self.system_tray.update_state(state)
         self.terminal_title.update_state(state)
 
@@ -848,7 +859,10 @@ class StateManager:
         try:
             info = foreground.get_foreground_app() or {}
         except Exception:
-            return True
+            if IS_LINUX:
+                self.logger.exception('GNOME focus unavailable; refusing automatic keyboard delivery')
+                self.system_tray.notify('Desktop integration unavailable; run whisper-local --doctor.')
+            return not IS_LINUX
         exe = (info.get('exe') or '').lower()
         if not exe:
             return False

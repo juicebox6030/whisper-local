@@ -13,10 +13,13 @@ from typing import Optional, TYPE_CHECKING
 from pathlib import Path
 
 from .utils import open_file
-from .platform import permissions, icons, console
+from .platform import permissions, icons, console, IS_LINUX
 
 try:
-    import pystray
+    if IS_LINUX:
+        from .platform.linux import tray as pystray
+    else:
+        import pystray
     from PIL import Image
     TRAY_AVAILABLE = True
 except ImportError:
@@ -588,6 +591,10 @@ class SystemTray:
         import subprocess
         import sys
         try:
+            if sys.platform == 'linux' and flag in ('--doctor', '--stats', '--selftest'):
+                from .platform.linux.app import open_terminal
+                open_terminal([sys.executable, '-m', 'whisper_key.main', flag])
+                return
             subprocess.Popen(
                 [sys.executable, '-m', 'whisper_key.main', flag],
                 creationflags=getattr(subprocess, 'CREATE_NEW_CONSOLE', 0)

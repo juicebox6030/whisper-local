@@ -2,6 +2,14 @@
 
 History inherited from upstream [`whisper-key-local`](https://github.com/PinW/whisper-key-local). Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Experimental Linux backend for Fedora 43 / GNOME 49 on Wayland, using the
+  shared dictation pipeline and a bundled GNOME extension for desktop input,
+  hotkeys, panel menus and recording feedback. Includes explicit extension
+  installation, opt-in removal and XDG autostart. See [Linux setup](docs/linux.md).
+
 ## [0.18.3]
 
 ### Added

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "whisper-local"
 version = "0.18.3"
-description = "Free, open-source, fully offline AI dictation for Windows and macOS. Hold a hotkey, speak, get text at the cursor. 100% local. Powered by Whisper."
+description = "Local AI dictation for Windows, macOS and Linux/GNOME. Hold a hotkey, speak, get text at the cursor. Powered by Whisper."
 readme = "README.md"
 license = "MIT"
 authors = [
@@ -19,7 +19,7 @@ keywords = [
     "transcription", "ai-dictation", "local-ai", "offline",
     "push-to-talk", "voice-recognition", "accessibility",
     "faster-whisper", "privacy", "self-hosted", "wispr-flow",
-    "ollama", "voice-commands", "windows", "macos"
+    "ollama", "voice-commands", "windows", "macos", "linux", "gnome", "wayland"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -30,6 +30,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -54,6 +55,7 @@ dependencies = [
     "hf-xet>=1.1.5",
     "playsound3>=2.0",
     "ten-vad>=1.0.6",
+    "dbus-next>=0.2.3; sys_platform=='linux'",
 
     # Windows-only
     "global-hotkeys>=0.1.7; sys_platform=='win32'",
@@ -73,7 +75,7 @@ whispercpp = ["pywhispercpp>=1.2"]
 noise = ["noisereduce>=3.0.0"]
 
 # System-audio (loopback) capture — transcribe what you hear (meetings, videos)
-# via `whisper-local --transcribe-system`. Windows/macOS. EXPERIMENTAL.
+# via `whisper-local --transcribe-system`. Platform audio monitors. EXPERIMENTAL.
 loopback = ["soundcard>=0.4.2"]
 
 [project.scripts]
@@ -93,4 +95,4 @@ Changelog = "https://github.com/drajb/whisper-local/blob/master/CHANGELOG.md"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"whisper_key" = ["assets/**/*", "platform/*/assets/*", "config.defaults.yaml", "commands.defaults.yaml", "profiles.defaults.yaml", "app_rules.defaults.yaml", "transforms.defaults.yaml"]
+"whisper_key" = ["assets/**/*", "platform/*/assets/*", "config.defaults.yaml", "commands.defaults.yaml", "commands.linux.yaml", "profiles.defaults.yaml", "app_rules.defaults.yaml", "transforms.defaults.yaml"]

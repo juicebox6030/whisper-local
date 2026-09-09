@@ -7,7 +7,7 @@
 #          visible in Task Manager → Startup). Launches windowless (pythonw / the
 #          GUI-subsystem .exe) so there's no console flash at boot.
 # macOS:   a LaunchAgent plist in ~/Library/LaunchAgents.
-# Other:   not supported — returns a clear message; the caller falls back to docs.
+# Linux:   an XDG autostart desktop entry, without changing other login apps.
 
 import logging
 import os
@@ -24,7 +24,7 @@ _MAC_LABEL = "com.drajb.whisper-local"
 
 
 def is_supported() -> bool:
-    return sys.platform in ("win32", "darwin")
+    return sys.platform in ("win32", "darwin", "linux")
 
 
 # Build the command Whisper Local should be relaunched with at login. The real
@@ -159,12 +159,42 @@ def _mac_disable() -> bool:
 
 # ── public API ──
 
+def _linux_desktop_path():
+    base = Path(os.environ.get('XDG_CONFIG_HOME', Path.home() / '.config'))
+    if not base.is_absolute():
+        base = Path.home() / '.config'
+    return base / 'autostart' / 'whisper-local.desktop'
+
+
+def _desktop_quote(value):
+    # Desktop Entry Exec escaping is not shell quoting. Percent is a field code.
+    if '\n' in value or '\r' in value:
+        raise ValueError('Desktop entry arguments cannot contain newlines')
+    # Two decoding passes: general desktop-entry string escaping, then Exec
+    # argument quoting. A literal backslash needs four backslashes in the file.
+    value = value.replace('\\', '\\\\\\\\').replace('"', '\\\\"')
+    value = value.replace('`', '\\\\`').replace('$', '\\\\$').replace('%', '%%')
+    return '"' + value + '"'
+
+
+def _linux_enable():
+    path = _linux_desktop_path()
+    command = ' '.join(_desktop_quote(arg) for arg in _launch_command())
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('[Desktop Entry]\nType=Application\nName=Whisper Local\n'
+                    f'Exec={command}\nTerminal=false\nX-GNOME-Autostart-enabled=true\n',
+                    encoding='utf-8')
+    return True
+
 def is_enabled() -> bool:
     try:
         if sys.platform == "win32":
             return _win_is_enabled()
         if sys.platform == "darwin":
             return _mac_is_enabled()
+        if sys.platform == 'linux':
+            path = _linux_desktop_path()
+            return path.exists() and 'Hidden=true' not in path.read_text()
     except Exception as e:
         logger.debug(f"autostart.is_enabled check failed: {e}")
     return False
@@ -177,6 +207,8 @@ def enable() -> bool:
             return _win_enable()
         if sys.platform == "darwin":
             return _mac_enable()
+        if sys.platform == 'linux':
+            return _linux_enable()
         logger.warning("Autostart not supported on this platform")
         return False
     except Exception as e:
@@ -190,6 +222,9 @@ def disable() -> bool:
             return _win_disable()
         if sys.platform == "darwin":
             return _mac_disable()
+        if sys.platform == 'linux':
+            _linux_desktop_path().unlink(missing_ok=True)
+            return True
         return False
     except Exception as e:
         logger.error(f"Failed to disable autostart: {e}")

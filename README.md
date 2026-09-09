@@ -5,6 +5,10 @@
 ### Free, Open-Source, **100% Offline** AI Dictation for Windows & macOS
 
 **Press a hotkey. Speak. Your words appear at the cursor.**
+
+> **Linux (experimental):** Fedora 43 / GNOME 49 / Wayland is supported through
+> the Python package. See [Linux setup and current limitations](docs/linux.md).
+
 No cloud. No subscription. No telemetry. Powered by [OpenAI Whisper](https://github.com/openai/whisper).
 
 [![Tests](https://github.com/drajb/whisper-local/actions/workflows/test.yml/badge.svg)](https://github.com/drajb/whisper-local/actions/workflows/test.yml)
